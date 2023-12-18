@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AuthValidation;
+use App\Http\Controllers\VacanciesController;
 use App\Http\Controllers\JobAppliesController;
 use App\Http\Controllers\ValidationController;
 use App\Http\Controllers\AuthenticationController;
@@ -27,13 +28,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('v1/auth/login', [AuthenticationController::class, 'loginUsers'])->name('loginUsers');
 Route::post('v1/auth/logout', [AuthenticationController::class, 'logoutUsers'])->name('logoutUsers');
 
-// Store Validation
+// Middleware
 Route::middleware(AuthValidation::class)->group(
     function () {
+        // Validations
         Route::post('v1/validations', [ValidationController::class, 'storeValidation'])->name('storeValidation');
-        Route::get('v1/job_vacancies', [ValidationController::class, 'getValidation'])->name('getValidation');
-        Route::get('v1/job_vacancies/{id}', [ValidationController::class, 'getValidationById'])->name('getValidationById');
+        Route::get('v1/validations', [ValidationController::class, 'getValidation'])->name('getValidation'); // Get All validation
 
+        // Vacancies
+        Route::get('v1/job_vacancies', [VacanciesController::class, 'getVacancies'])->name('getVacancies');  // Get All Vacancies
+        Route::get('v1/job_vacancies/{id}', [VacanciesController::class, 'getVacanciesById'])->name('getVacanciesById');
+
+        // Applying Jobs
         Route::post('/v1/applications', [JobAppliesController::class, 'storeJobApply'])->name('storeJobApply');
         Route::get('/v1/applications', [JobAppliesController::class, 'getJobApply'])->name('getJobApply');
 

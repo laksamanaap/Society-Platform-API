@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Validator;
 
 class ValidationController extends Controller
 {
+
+    // Store validation
     public function storeValidation(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -40,47 +42,17 @@ class ValidationController extends Controller
         return response()->json(['message' => 'Request data validation sent successfully', 'data' => $validation], 200);
     }
 
+     // Get All Validation
+    public function getValidation(Request $request )
+    { 
 
-    public function getValidationById(Request $request, $id) {
-        $validator = Validator::make($request->all(), [
-            'token' => 'required|string',
-        ]);
+        $getAllValidation = Validation::all();
 
-        if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()], 422);
-        }
+        return response()->json([
+            'data' => $getAllValidation
+        ], 200);
 
-        $token = $request->input('token');
-
-        $vacancy = Vacancies::with('availablePositions','jobCategories')->find($id);
-
-        if (!$vacancy) {
-            return response()->json(['message' => 'Job vacancy not found'], 404);
-        }
-
-        $response = [
-            'vacancy' => [
-                'id' => $vacancy->id,
-                'category' => [
-                    'id' => $vacancy->availablePositions->first()->job_vacancy_id,
-                    'job_category' => $vacancy->jobCategories->first()->job_category,
-                ],
-                'company' => $vacancy->company,
-                'address' => $vacancy->address,
-                'description' => $vacancy->description,
-                'available_position' => $vacancy->availablePositions->map(function ($position) {
-                    return [
-                        'position' => $position->position,
-                        'capacity' => $position->capacity,
-                        'apply_capacity' => $position->apply_capacity,
-                        // 'apply_count' => $position->apply_count,
-                    ];
-                }),
-            ],
-        ];
-
-        return response()->json($response, 200);
     }
-
+   
 
 }

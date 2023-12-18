@@ -14,5 +14,15 @@ class JobPositions extends Model
 
     public $timestamps = false;
 
+    public function jobApply()
+    {
+        return $this->belongsTo(JobApplies::class, 'job_apply_societies_id', 'id');
+    }
+
+    public function availablePosition()
+    {
+        return $this->belongsTo(AvailablePositions::class, 'position_id', 'id');
+    }
+
     use HasFactory;
 }

@@ -10,51 +10,57 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthenticationController extends Controller
 {
+    // Login Users
     public function loginUsers(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'id_card_number' => 'required|string',
-            'password' => 'required|string',
-        ]);
+       $validator = Validator::make($request->all(), [
+    'id_card_number' => 'required|string',
+    'password' => 'required|string',
+]);
 
-        if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()], 419);
+if ($validator->fails()) {
+    return response()->json(['message' => $validator->errors()], 419);
+}
+
+try {
+    $user = User::where('id_card_number', $request->input('id_card_number'))->first();
+
+    if ($user && $request->input('password') === $user->password) {
+        Auth::login($user);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+        $user->update(['login_tokens' => $token]);
+
+        $response = [
+            'name' => $user->name,
+            'born_date' => $user->born_date,
+            'gender' => $user->gender,
+            'address' => $user->address,
+            'token' => $token,
+        ];
+
+        // Check if the user has a regional relationship
+        if ($user->regionals) {
+            $response['regional'] = [
+                'id' => $user->regionals->id,
+                'province' => $user->regionals->province,
+                'district' => $user->regionals->district,
+            ];
+        } else {
+            // If the regional id is empty, return this
+            $response['regional'] = 'Your Regional is empty, Please fill out the regional first!'; 
         }
 
-        try {
-            $user = User::where('id_card_number', $request->input('id_card_number'))->first();
-
-            if ($user && $request->input('password') === $user->password) {
-                Auth::login($user);
-
-                $token = $user->createToken('auth_token')->plainTextToken;
-                $user->update(['login_tokens' => $token]);
-
-                $response = [
-                    'name' => $user->name,
-                    'born_date' => $user->born_date,
-                    'gender' => $user->gender,
-                    'address' => $user->address,
-                    'token' => $token,
-                    'regional' => [
-                        'id' => $user->regionals->id,
-                        'province' => $user->regionals->province,
-                        'district' => $user->regionals->district,
-                    ]
-                ];
-
-                return response()->json([
-                    $response
-                ], 200);
-            } else {
-                return response()->json(['message' => 'ID Card Number or Password incorrect'], 401);
-            }
+        return response()->json([$response], 200);
+    } else {
+        return response()->json(['message' => 'ID Card Number or Password incorrect'], 401);
+    }
         } catch (DecryptException $e) {
             return response()->json(['message' => 'Error in password hashing'], 500);
         }
     }
 
 
-
+    // Logout Users
     public function logoutUsers(Request $request)
     {
         $validator = Validator::make($request->all(), [

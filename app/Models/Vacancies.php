@@ -21,5 +21,10 @@ class Vacancies extends Model
         return $this->hasOne(JobCategories::class, 'id', 'job_category_id');
     }
 
+    public function socities()
+    {
+        
+    }
+
     use HasFactory;
 }
