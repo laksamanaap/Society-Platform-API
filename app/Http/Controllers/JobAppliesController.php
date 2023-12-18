@@ -156,36 +156,47 @@ class JobAppliesController extends Controller
     // Get All Job Apply
     public function getJobApply(Request $request)
     {
-    $user = User::where('login_tokens', $request->input('token'))->first();
+        // Validate the request
+        $validator = validator($request->all(), [
+            'token' => 'required|string',
+        ]);
 
-    $jobApplications = $user->applications()->with('positions')->get();
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Invalid token / fields', 'errors' => $validator->errors()], 401);
+        }
 
-    // // Group job applications by job vacancy ID
-    // $groupedApplications = $jobApplications->groupBy('job_vacancy_id');
+        // Retrieve user based on the token
+        $user = User::where('login_tokens', $request->input('token'))->first();
 
-    // $response = [
-    // 'vacancies' => $groupedApplications->map(function ($applications, $vacancyId) {
-    //     $firstApplication = $applications->first();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized user'], 401);
+        }
 
-    //     return [
-    //         'id' => $vacancyId,
-    //         'category' => [
-    //             'id' => $firstApplication->positions->job_category_id,
-    //             'job_category' => $firstApplication->positions->job_category,
-    //         ],
-    //         'company' => $firstApplication->positions->company,
-    //         'address' => $firstApplication->positions->address,
-    //         'position' => $applications->map(function ($application) {
-    //             return [
-    //                 'positions' => $application->positions->positions,
-    //                 'apply_status' => $application->apply_status,
-    //                 'notes' => $application->notes,
-    //             ];
-    //         }),
-    //     ];
-    // })->filter(), // Filter out null values
-    // ];
+        // Get all job applications for the user
+        $jobApplications = $user->applications()-positions()->get();
 
-    return response()->json($jobApplications, 200);
+        // Prepare the response
+        $response = [
+            'vacancies' => $jobApplications->map(function ($application) {
+                return [
+                    'id' => $application->job_vacancy_id,
+                    'category' => [
+                        'id' =>  $application->positions->first()->job_category_id ,
+                        'job_category' =>  $application->positions->first()->job_category ,
+                    ],
+                    'company' =>  $application->positions->first()->company ,
+                    'address' =>  $application->positions->first()->address ,
+                    'position' => $application->positions->map(function ($position) {
+                        return [
+                            'position' => $position->position,
+                            'apply_status' => $position->apply_status,
+                            'notes' => $position->notes,
+                        ];
+                    }),
+                ];
+            }),
+        ];
+
+        return response()->json($response, 200);
     }
 }
