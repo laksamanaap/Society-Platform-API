@@ -102,37 +102,42 @@ class JobAppliesController extends Controller
         }
 
         // Retrieve user based on the token
-        $user = User::with('positions.applications')->where('login_tokens', $request->input('token'))->first();
+        $user = User::with(['applications' => function ($query) {
+            $query->with(['vacancies','jobApplyPosition']);
+        }])->where('login_tokens', $request->input('token'))->first();
+
+        // $user = User::with(['applications.vacancies.availablePositions', 'positions'])
+        // ->where('login_tokens', $request->input('token'))->first();
 
         if (!$user) {
             return response()->json(['message' => 'Unauthorized user'], 401);
         }
-
-        $jobApplications = $user->positions;
-        // dd($jobApplications);
-
+        
         $response = [
-            'vacancies' => $jobApplications->map(function ($application) {
-                return [
-                    // dd($application->toArray()),
-                    'id' => $application->job_vacancy_id,
-                    'category' => [
-                        'id' =>  $application->job_category_id ,
-                        'job_category' =>  $application->job_category ,
-                    ],
-                    // 'company' =>  $application->positions->first()->company ,
-                    // 'address' =>  $application->positions->first()->address ,
-                    // 'position' => $application->positions->map(function ($position) {
-                    //     return [
-                    //         'position' => $position->positions,
-                    //         'apply_status' => $position->apply_status,
-                    //         'notes' => $position->notes,
-                    //     ];
-                    // }),
-                ];
-            }),
-        ];
+        'vacancies' => $user->applications->map(function ($application) {
+            return [
+                'id' => $application->vacancies->id,
+                'society_id' => $application->jobApplyPosition->society_id ?? 'null',
+                'category' => [
+                    'id' => $application->vacancies->job_category_id,
+                    'job_category' => $application->vacancies->job_category, 
+                ],
+                'apply_date' => $application->date, 
+                'notes' => $application->notes,
+                'company' => $application->vacancies->company,
+                'address' => $application->vacancies->address,
+                'position' => $application->vacancies->availablePositions->map(function ($position) use ($application) {
+                    return [
+                        'position' => $position->position,
+                        'apply_status' => $application->jobApplyPosition->status ?? 'null', // Assuming this property exists in your data
+                        'notes' => $application->notes,
+                    ];
+                }),
+            ];
+        }),
+     ];
+        
 
-        return response()->json($response, 200);
+        return response()->json($response , 200);
     }
 }

@@ -28,7 +28,7 @@ class User extends Authenticatable
 
     public function applications()  
     {
-        return $this->hasMany(JobApplies::class, 'id', 'id');
+        return $this->hasMany(JobApplies::class, 'society_id', 'id');
     }
 
     // Temporary 
@@ -41,6 +41,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(AvailablePosition::class, 'job_vacancy_id', 'id');
     }
+
+    public function validations()
+    {
+        return $this->hasMany(Validation::class, 'society_id', 'id');
+    }
+
+
+    
 
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -67,9 +75,6 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     
-     public function validations()
-    {
-        return $this->hasMany(Validation::class, 'society_id', 'id');
-    }
+
 
 }

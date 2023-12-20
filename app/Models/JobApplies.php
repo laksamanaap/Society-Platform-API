@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Vacancies;
+use App\Models\AvailablePosition;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class JobApplies extends Model
 {
@@ -22,6 +24,28 @@ class JobApplies extends Model
     {
         return $this->hasMany(JobPositions::class, 'job_apply_societies_id', 'id');
     }
+
+    public function vacancies() 
+    {
+        return $this->hasOne(Vacancies::class, 'id', 'job_vacancy_id');
+    }
+
+    public function availablePosition()
+    {
+        return $this->hasMany(AvailablePosition::class, 'id', 'position_id');
+    }
+
+    public function jobCategories()
+    {
+        return $this->hasOne(JobCategories::class, 'id', 'job_category_id');
+    }
+
+    public function jobApplyPosition()
+    {
+        return $this->hasOne(JobPositions::class, 'job_apply_societies_id');
+    }
+
+    
 
     use HasFactory;
 }

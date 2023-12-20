@@ -21,12 +21,18 @@ class JobPositions extends Model
 
     public function availablePosition()
     {
-        return $this->belongsTo(AvailablePositions::class, 'position_id', 'id');
+        return $this->hasMany(AvailablePositions::class, 'position_id', 'id');
     }
 
+    // Job Applies
     public function applications()  
     {
         return $this->hasMany(JobApplies::class, 'id', 'id');
+    }
+
+    public function vacancies() 
+    {
+        return $this->hasOne(JobVacancies::class, 'job_vacancy_id', 'id');
     }
 
     use HasFactory;
