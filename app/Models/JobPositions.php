@@ -24,5 +24,10 @@ class JobPositions extends Model
         return $this->belongsTo(AvailablePositions::class, 'position_id', 'id');
     }
 
+    public function applications()  
+    {
+        return $this->hasMany(JobApplies::class, 'id', 'id');
+    }
+
     use HasFactory;
 }

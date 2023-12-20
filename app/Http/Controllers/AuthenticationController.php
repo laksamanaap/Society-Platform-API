@@ -31,6 +31,7 @@ try {
         $user->update(['login_tokens' => $token]);
 
         $response = [
+            'id' => $user->id,
             'name' => $user->name,
             'born_date' => $user->born_date,
             'gender' => $user->gender,
@@ -50,7 +51,7 @@ try {
             $response['regional'] = 'Your Regional is empty, Please fill out the regional first!'; 
         }
 
-        return response()->json([$response], 200);
+        return response()->json($response, 200);
     } else {
         return response()->json(['message' => 'ID Card Number or Password incorrect'], 401);
     }

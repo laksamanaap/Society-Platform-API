@@ -46,7 +46,7 @@ class VacanciesController extends Controller
                         'position' => $position->position,
                         'capacity' => $position->capacity,
                         'apply_capacity' => $position->apply_capacity,
-                        'apply_count' => $position->apply_count,
+                        'apply_count' =>  $position->capacity + $position->apply_capacity,
                     ];
                 }),
             ],

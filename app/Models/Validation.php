@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Validators;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Validation extends Model
 {
@@ -26,6 +27,16 @@ class Validation extends Model
      public function user()
     {
         return $this->belongsTo(User::class, 'id', 'id');
+    }
+
+    public function jobCategories()
+    {
+        return $this->hasOne(JobCategories::class, 'id', 'job_category_id');
+    }
+
+    public function validators()
+    {
+        return $this->hasOne(Validators::class, 'id', 'validator_id');
     }
 
 

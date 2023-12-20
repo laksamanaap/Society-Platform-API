@@ -37,6 +37,11 @@ class User extends Authenticatable
         return $this->hasMany(JobPositions::class, 'society_id', 'id'); // Foreign, Local
     }
 
+    public function availablePositions()
+    {
+        return $this->hasMany(AvailablePosition::class, 'job_vacancy_id', 'id');
+    }
+
     use HasApiTokens, HasFactory, Notifiable;
 
     /**

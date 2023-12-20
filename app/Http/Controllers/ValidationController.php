@@ -19,7 +19,10 @@ class ValidationController extends Controller
             'work_experience' => 'required|string',
             'job_category_id' => 'required|integer',
             'job_position' => 'required|string',
+            'validator_id' => 'required|integer',
             'reason_accepted' => 'required|string',
+            'status' => 'required|string',
+            'validator_notes' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -35,6 +38,9 @@ class ValidationController extends Controller
             'job_position' => $request->input('job_position'),
             'reason_accepted' => $request->input('reason_accepted'),
             'society_id' => $user->id,
+            'validator_id' => $request->input('validator_id'),
+            'status' => $request->input('status'),
+            'validator_notes' => $request->input('validator_notes'),
         ]);
 
         $validation->save();
@@ -46,7 +52,7 @@ class ValidationController extends Controller
     public function getValidation(Request $request )
     { 
 
-        $getAllValidation = Validation::all();
+        $getAllValidation = Validation::with('jobCategories','validators')->get();
 
         return response()->json([
             'data' => $getAllValidation
